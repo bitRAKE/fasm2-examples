@@ -1,4 +1,5 @@
 *.obj
+*.res
 *.exe
 *.zip
 /wip/*
