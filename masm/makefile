@@ -11,9 +11,8 @@ fasm2 = c:\fasm2\fasm2.cmd
 .asm.exe :
 	$(fasm2) -e 5 $<
 
-
+# build first rule by default
 main.exe : main.asm main.res
-
 
 .SILENT :
 

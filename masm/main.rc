@@ -1,7 +1,5 @@
-
 #include "resource.h"
 #include "main.h"
-
 
 MyDialog DIALOG 10, 10, 205, 60
 STYLE 0x0004 | DS_CENTER | WS_CAPTION | WS_MINIMIZEBOX |

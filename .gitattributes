@@ -7,3 +7,5 @@
 # if distinction needs to be more granular or fasmg usage is language agnostic
 # post-fixed file with '.g' i.e. test.asm.g, test.inc.g
 *.g      linguist-language=Assembly
+# presently, linguist doesn't have resource script support - we try Pascal
+*.rc	 linguist-language=Pascal
