@@ -14,6 +14,9 @@ fasm2 = c:\fasm2\fasm2.cmd
 # build first rule by default
 main.exe : main.asm main.res
 
+main.exe main.res : main.h
+
+
 .SILENT :
 
 # rc.exe drops random temp files on error, like RCa10512
