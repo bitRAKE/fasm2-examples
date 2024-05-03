@@ -1,0 +1,9 @@
+# disable end of line conversion on all files (act responsibly)
+*        -text
+# "linguist-detectable=false" don't collect stats on language
+# I don't really like any of the highlighters, but here it can be changed:
+#*.asm    linguist-language=Assembly
+*.inc    linguist-language=Assembly
+# if distinction needs to be more granular or fasmg usage is language agnostic
+# post-fixed file with '.g' i.e. test.asm.g, test.inc.g
+*.g      linguist-language=Assembly
