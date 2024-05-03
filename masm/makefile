@@ -14,6 +14,7 @@ fasm2 = c:\fasm2\fasm2.cmd
 # build first rule by default
 main.exe : main.asm main.res
 
+# specify non-implied dependencies
 main.exe main.res : main.h
 
 
