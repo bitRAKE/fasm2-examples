@@ -1,4 +1,8 @@
 *.obj
+
+# rc.exe drops random temp files on error, like RCa10512
+RC[a-z][0-9][0-9][0-9][0-9][0-9].
+
 *.res
 *.exe
 *.zip

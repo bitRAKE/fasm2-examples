@@ -16,10 +16,12 @@ main.exe : main.asm main.res
 
 .SILENT :
 
+# rc.exe drops random temp files on error, like RCa10512
 clean :
+	del /Q RCa*. 2>NUL
 	del /Q *.res 2>NUL
 	del /Q *.exe 2>NUL
 	del /Q *.zip 2>NUL
 
 package : clean
-	tar -a -cf main.zip *
+	tar -a -cf main.zip --exclude=main.zip *

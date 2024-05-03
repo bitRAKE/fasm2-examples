@@ -1,4 +1,4 @@
-#include "resource.h"
+#include <winuser.h>
 #include "main.h"
 
 MyDialog DIALOG 10, 10, 205, 60
@@ -7,18 +7,18 @@ WS_SYSMENU | WS_VISIBLE | WS_OVERLAPPED | DS_MODALFRAME | DS_3DLOOK
 CAPTION "First Dialog Box"
 MENU IDR_MENU1
 BEGIN
-        EDITTEXT         IDC_EDIT,   15,17,111,13, ES_AUTOHSCROLL | ES_LEFT
-        DEFPUSHBUTTON   "Say Hello", IDC_BUTTON,    141,10,52,13
-        PUSHBUTTON      "E&xit", IDC_EXIT,  141,26,52,13
+	EDITTEXT	IDC_EDIT, 15,17,111,13, ES_AUTOHSCROLL | ES_LEFT
+	DEFPUSHBUTTON	"Say Hello", IDC_BUTTON, 141,10,52,13
+	PUSHBUTTON	"E&xit", IDC_EXIT, 141,26,52,13
 END
 
 IDR_MENU1  MENU
 BEGIN
-        POPUP "Test Controls"
-        BEGIN
-                MENUITEM "Get Text", IDM_GETTEXT
-                MENUITEM "Clear Text", IDM_CLEAR
-                MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
-                MENUITEM "E&xit", IDM_EXIT
-        END
+	POPUP "Test Controls"
+	BEGIN
+		MENUITEM "Get Text", IDM_GETTEXT
+		MENUITEM "Clear Text", IDM_CLEAR
+		MENUITEM "", , 0x0800 /*MFT_SEPARATOR*/
+		MENUITEM "E&xit", IDM_EXIT
+	END
 END
