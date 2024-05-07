@@ -28,11 +28,6 @@ mainCRTStartup: fastcall?.frame = 0
 	xchg ecx, eax ; BOOL
 	jrcxz Fatal ; VT required
 
-; initialize prng
-	rdrand rax
-	or eax, 1
-	mov [rbp + pcg32.increment], rax
-
 ; initialize terminal
 <<	27,'[?1049h',\	; enables the alternative buffer
 	27,'[2J',\	; clear screen
@@ -50,8 +45,7 @@ mainCRTStartup: fastcall?.frame = 0
 	mov [columns], ecx
 	mov [lines], eax
 
-	ror rax, cl
-	mov [rbp + pcg32.state], rax
+	call pcg32_initialize
 .main_loop:
 	Sleep 1 ; fraction of a percent CPU utilization
 

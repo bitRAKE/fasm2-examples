@@ -1,4 +1,4 @@
-if __FILE__ = __SOURCE__ ;				building object file
+if __FILE__ = __SOURCE__ ; ------------------------------- building object file
 
 format MS64 COFF
 section '.text$t' code executable readable align 64
@@ -25,7 +25,7 @@ u32__ToString:
 	retn ; RAX : -1, RDX : 0-9, RDI++
 .10	dd 10
 
-else ;							including interface
+else ; ---------------------------------------------------- including interface
 
 extrn u32__ToString
 

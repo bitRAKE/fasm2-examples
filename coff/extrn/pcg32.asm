@@ -1,9 +1,21 @@
-if __FILE__ = __SOURCE__ ;				building object file
+if __FILE__ = __SOURCE__ ; ------------------------------- building object file
 	format MS64 COFF
 	section '.text$t' code executable readable align 64
 
 	include 'macro\struct.inc'
+	public pcg32_initialize
 	public pcg32_random_r
+
+
+pcg32_initialize:
+	rdrand rax
+	mov [rbp + pcg32.state], rax
+
+	rdrand rax
+	or al, 1
+	mov [rbp + pcg32.increment], rax
+	retn
+
 
 pcg32_random_r: ; https://www.pcg-random.org
 	mov rcx, [rbp + pcg32.state]
@@ -19,8 +31,9 @@ pcg32_random_r: ; https://www.pcg-random.org
 	ror eax, cl
 	retn
 
-else ;							including interface
+else ; ---------------------------------------------------- including interface
 
+	extrn pcg32_initialize
 	extrn pcg32_random_r
 
 end if
