@@ -1,52 +1,12 @@
 include 'consoleApp.g'
 
-struct pcg32
-	state		dq ?
-	increment	dq ?
-ends
-pcg32_random_r: ; https://www.pcg-random.org
-	mov rcx, [rbp + pcg32.state]
-	mov rax, 6364136223846793005
-	imul rax, rcx
-	add rax, [rbp + pcg32.increment]
-	mov [rbp + pcg32.state], rax
-	mov rax, rcx
-	shr rax, 18
-	xor rax, rcx
-	shr rcx, 59
-	shr rax, 27
-	ror eax, cl
-	retn
-
-
-; EAX : unsigned number to convert
-; RDI : string buffer to receive digits
-u32__ToString:
-	push -1
-.tens:	xor edx, edx
-	div [.10]
-	push rdx
-	test eax, eax
-	jnz .tens
-	pop rax
-.ascii:	add al, '0'
-	stosb
-	pop rax
-	test eax, eax
-	jns .ascii
-	retn ; RAX : -1, RDX : 0-9, RDI++
-.10	dd 10
-
-
-
 Fatal:	ExitProcess 1
-
-public mainCRTStartup
 
 !	columns		dd ?
 !	lines		dd ?
 !	oldOutMode	dd ?
 
+public mainCRTStartup
 mainCRTStartup: fastcall?.frame = 0
 	virtual at rbp - .local
 		.csbi CONSOLE_SCREEN_BUFFER_INFO
@@ -70,7 +30,7 @@ mainCRTStartup: fastcall?.frame = 0
 
 ; initialize prng
 	rdrand rax
-	or al, 1
+	or eax, 1
 	mov [rbp + pcg32.increment], rax
 
 ; initialize terminal
@@ -90,7 +50,7 @@ mainCRTStartup: fastcall?.frame = 0
 	mov [columns], ecx
 	mov [lines], eax
 
-	rol rax, cl
+	ror rax, cl
 	mov [rbp + pcg32.state], rax
 .main_loop:
 	Sleep 1 ; fraction of a percent CPU utilization
@@ -112,7 +72,6 @@ mainCRTStartup: fastcall?.frame = 0
 	mul [lines]
 
 	lea edi, [Buffer]
-
 	mov ax, 27 or ('[' shl 8)	; cursor to L x C
 	stosw
 	lea eax, [rdx+1]		; line
@@ -122,11 +81,6 @@ mainCRTStartup: fastcall?.frame = 0
 	pop rax
 	add eax, 1			; column
 	call u32__ToString
-	mov al, 'H'
-	stosb
-
-	mov ax, 27 or ('[' shl 8)	; color mode
-	stosw
 
 	pop rsi
 	mov esi, [intensities + 4*(rsi+1)]
@@ -137,9 +91,6 @@ mainCRTStartup: fastcall?.frame = 0
 	mov esi, [colors + 4*(rsi+1)]
 	movzx ecx, byte [rsi-1]
 	rep movsb
-
-	mov al, 'm'
-	stosb
 
 	pop rax
 	mov al, [symbol + rax]
@@ -187,9 +138,9 @@ mainCRTStartup: fastcall?.frame = 0
 				dd .%
 			end repeat
 		end if
-			db .%.bytes
-		.%	db I
-		.%.bytes := $ - .%
+!			db .%.bytes
+!		.%	db 'H',27,'[',I
+!		.%.bytes := $ - .%
 	end iterate
 
 	iterate C,\; {r};{g};{b}
@@ -204,14 +155,14 @@ mainCRTStartup: fastcall?.frame = 0
 				dd .%
 			end repeat
 		end if
-			db .%.bytes
-		.%	db ';38;2;',C
-		.%.bytes := $ - .%
+!			db .%.bytes
+!		.%	db ';38;2;',C,'m'
+!		.%.bytes := $ - .%
 	end iterate
 
-symbol db '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~'
-symbols dd $ - symbol
+! symbol db '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~'
+! symbols dd $ - symbol
 
 !	align 64
-!	label Buffer:4096
+! label Buffer:4096
 !	rb sizeof Buffer

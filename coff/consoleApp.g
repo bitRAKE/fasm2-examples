@@ -6,7 +6,7 @@ format MS64 COFF
 include 'win64a.inc'
 include 'wincon.g' ; console interface support
 
-section '.text$t' code readable executable align 64
+section '.text$t' code executable readable align 64
 
 postpone
 section '.data$t' data readable writeable align 64
@@ -118,3 +118,7 @@ calminstruction ? line&
 	arrange line, =rep =movsb
 done:	assemble line
 end calminstruction
+
+;-------------------------------------------------------------------------------
+include 'extrn\pcg32.asm'
+include 'extrn\u32.asm'
