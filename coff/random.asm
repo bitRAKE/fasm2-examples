@@ -2,9 +2,9 @@ include 'consoleApp.g'
 
 Fatal:	ExitProcess 1
 
-!	columns		dd ?
-!	lines		dd ?
-!	oldOutMode	dd ?
+~	columns		dd ?
+~	lines		dd ?
+~	oldOutMode	dd ?
 
 public mainCRTStartup
 mainCRTStartup: fastcall?.frame = 0
@@ -157,6 +157,6 @@ mainCRTStartup: fastcall?.frame = 0
 ! symbol db '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~'
 ! symbols dd $ - symbol
 
-!	align 64
-! label Buffer:4096
-!	rb sizeof Buffer
+~	align 64
+~ label Buffer:4096
+~	rb sizeof Buffer

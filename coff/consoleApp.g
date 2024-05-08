@@ -9,14 +9,19 @@ include 'wincon.g' ; console interface support
 section '.text$t' code executable readable align 64
 
 postpone
-section '.data$t' data readable writeable align 64
-!! ; commit cached lines
+	section '.drectve' linkinfo linkremove
+	db '/BASE:0x10000 '
+	db '/SUBSYSTEM:CONSOLE '
+	db '/DEFAULTLIB:KERNEL32.LIB '
+	db '/DEFAULTLIB:USER32.LIB '
 
-section '.drectve' linkinfo linkremove
-db '/BASE:0x10000 '
-db '/SUBSYSTEM:CONSOLE '
-db '/DEFAULTLIB:KERNEL32.LIB '
-db '/DEFAULTLIB:USER32.LIB '
+	section '.data$t' data readable writeable align 64
+	!! ; commit cached lines
+
+	; the linker will merge this section automatically, but it's
+	; important to flag the data as uninitialized
+	section '.bss$t' udata readable writeable align 64
+	~~ ; commit cached lines
 end postpone
 
 ; https://devblogs.microsoft.com/oldnewthing/20041025-00/?p=37483
@@ -65,14 +70,30 @@ end calminstruction
 calminstruction ?? line& ; works like magic
 	match !!line?, line
 	jyes commit
+	match ~~line?, line
+	jyes scatter
 	match !line?, line
 	jyes collect
+	match ~line?, line
+	jyes gather
 	assemble line
 	exit
+
 	local stack
     collect:
 	take stack, line
 	exit
+
+	local pile
+    gather:
+	take pile, line
+	exit
+
+    scatter:
+	take line, pile
+	jyes scatter
+	jump assembly
+
     commit:
 	take line, stack
 	jyes commit

@@ -4,7 +4,7 @@
 Exploring variation with the [flat assembler 2 (early access)](https://github.com/tgrysztar/fasm2).
 
 ### coff
-* Piecing to gether modular object file components.[^1]
+* Piecing together modular object file components.
 
 ### masm
 * Features that make migration from MASM more familiar.[^1]
