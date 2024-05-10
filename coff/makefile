@@ -8,6 +8,11 @@ fasm2 = c:\fasm2\fasm2.cmd
 
 # LNK4281: triggers incorrectly, ASLR is not active for FIXED!
 
+gfx_gdi.exe : gfx_gdi.obj
+	link /IGNORE:4281 /FIXED $**
+
+gfx_gdi.obj : windowApp.g
+
 random.exe : random.obj \
 	extrn\pcg32.obj \
 	extrn\u32.obj
@@ -21,6 +26,6 @@ random.obj : consoleApp.g wincon.g \
 .SILENT :
 
 clean :
-	del /S /Q *.obj 2>NUL
+	del /S /Q *.obj >NUL 2>&1
 	del /Q *.exe 2>NUL
 	del /Q *.zip 2>NUL
