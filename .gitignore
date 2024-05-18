@@ -1,5 +1,8 @@
 *.obj
 
+# non-generated reponse files for linker will need to use another extension
+*.response
+
 # rc.exe drops random temp files on error, like RCa10512
 RC[a-z][0-9][0-9][0-9][0-9][0-9].
 

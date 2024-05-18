@@ -74,6 +74,9 @@ more:
 end calminstruction
 ;-------------------------------------------------------------------------------
 ; context aware line gathering
+;	|	const	readonly
+;	!	data	non-zero initialization
+;	~	bss	zero initializtion
 calminstruction ?? line& ; works like magic
 	match !!line?, line
 	jyes commit
@@ -147,6 +150,3 @@ calminstruction ? line&
 done:	assemble line
 end calminstruction
 
-;-------------------------------------------------------------------------------
-include 'extrn\pcg32.asm'
-include 'extrn\u32.asm'

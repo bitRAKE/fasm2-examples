@@ -1,4 +1,7 @@
-include 'consoleApp.g'
+include 'AppConsole.g'
+;-------------------------------------------------------------------------------
+include 'extrn\prng\pcg32.asm'
+include 'extrn\u32.asm'
 
 Fatal:	ExitProcess 1
 

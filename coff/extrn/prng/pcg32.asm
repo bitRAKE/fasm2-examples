@@ -7,6 +7,8 @@ if __FILE__ = __SOURCE__ ; ------------------------------- building object file
 	public pcg32_initialize
 	public pcg32_random_r
 
+; TODO: set processor feature dependancy: RDRAND
+
 pcg32_initialize:
 	rdrand rax
 	mov [rbp + pcg32.state], rax
