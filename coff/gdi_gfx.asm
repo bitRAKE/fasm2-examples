@@ -110,11 +110,6 @@ WndProcA.WM_RBUTTONUP: fastcall?.frame = 0
 ; notes: WM_RBUTTONUP mouse coordinates are screen relative
 ;	WM_RBUTTONDOWN brings window forward?
 ;	SetForegroundWindow [.hWnd]
-;	GetSystemMenu rcx, 0
-;	xchg rcx, rax
-;	jrcxz .no_sysmenu
-;	mov [.hMenu], rcx
-
 	; preserve fastcall parameter(s)
 	mov [.hWnd], rcx
 	GetCursorPos addr .pt ; client relative coordinates

@@ -210,5 +210,4 @@ virtual as "response"
 	db '/MANIFEST:EMBED',10
 	db "/MANIFESTDEPENDENCY:""type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'""",10
 	db 'OneCoreUAP.Lib',10
-	db 'dwmapi.lib',10
 end virtual
