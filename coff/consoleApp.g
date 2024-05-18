@@ -6,6 +6,13 @@ format MS64 COFF
 include 'win64a.inc'
 include 'wincon.g' ; console interface support
 
+calminstruction entry? target*
+	local line
+	; naming based on console subsystem expectation
+	arrange line, =public target =as 'mainCRTStartup'
+	assemble line
+end calminstruction
+
 section '.text$t' code executable readable align 64
 
 postpone
