@@ -1,13 +1,13 @@
-; https://learn.microsoft.com/en-us/windows/win32/controls/animation-control-reference
+; http://msdn.microsoft.com/en-us/library/bb761881.aspx
 include '..\windows.g'
-include '..\controls.h' ; IDs
+include '..\controls.h'
 
-extrn DialogProcW.WM_CLOSE
+extrn 'DialogProcW.WM_CLOSE' as AnimationDlgProc.WM_CLOSE
 
 public AnimationDlgProc
 :AnimationDlgProc:
 	cmp edx, WM_CLOSE
-	jz DialogProcW.WM_CLOSE
+	jz .WM_CLOSE
 	cmp edx, WM_INITDIALOG
 	jz .WM_INITDIALOG
 	xor eax, eax
@@ -23,14 +23,13 @@ public AnimationDlgProc
 	SetWindowTextW rcx, r9 ; parent has given name
 
 	; Load and register animation control class.
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_ANIMATE_CLASS
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_ANIMATE_CLASS
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the animation control.
-{const} .SysAnimate32 du 'SysAnimate32',0
-	CreateWindowExW 0, dword .SysAnimate32, 0, WS_CHILD or WS_VISIBLE\
+	CreateWindowExW 0, W "SysAnimate32", 0, WS_CHILD or WS_VISIBLE\
 		or ACS_TIMER or ACS_AUTOPLAY or ACS_TRANSPARENT,\
 		20, 20, 280, 60, [.hDlg], IDC_ANIMATION, __ImageBase, 0
 	xchg rcx, rax ; hAnimate

@@ -24,15 +24,14 @@ public TabControlDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_TAB_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_TAB_CLASSES
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the Tab control to fill client area.
 	GetClientRect [.hDialog], addr .rc
-{const}	.SysTabControl32 du "SysTabControl32",0
-	CreateWindowExW 0, .SysTabControl32, 0, WS_CHILD or WS_VISIBLE or TCS_FIXEDWIDTH,\
+	CreateWindowExW 0, W "SysTabControl32", 0, WS_CHILD or WS_VISIBLE or TCS_FIXEDWIDTH,\
 		[.rc.left], [.rc.top], [.rc.right], [.rc.bottom],\
 		[.hDialog], IDC_TAB, __ImageBase, 0
 	test rax, rax
@@ -42,7 +41,7 @@ public TabControlDlgProc
 	GetStockObject DEFAULT_GUI_FONT
 	SendMessageW [.hTab], WM_SETFONT, rax, 0
 
-{data}	.ti TC_ITEM mask: TCIF_TEXT
+{data:8} .ti TC_ITEM mask: TCIF_TEXT
 
 	iterate text,\
 		"First Page",\
@@ -51,8 +50,8 @@ public TabControlDlgProc
 		"Fourth Page",\
 		"Fifth Page"
 
-		{const} .% du text
-		{const} .%.end du 0
+		{const:2} .% du text
+		{const:2} .%.end du 0
 		mov [.ti.pszText], .%
 		mov [.ti.cchTextMax], (.%.end - .%) shr 1
 		SendMessageW [.hTab], TCM_INSERTITEMW, %-1, addr .ti

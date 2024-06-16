@@ -22,18 +22,17 @@ public SysLinkDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LINK_CLASS
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LINK_CLASS
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the simplest SysLink control.
 
-{const}	.refs du 9,"<a>Links</a> can be <a>clicked</a>, or tab",10,\
+{const:2} .refs du 9,"<a>Links</a> can be <a>clicked</a>, or tab",10,\
 	"navigated to and selected by <a>keyboard</a>.",0
 
-{const}	.SysLink du "SysLink",0
-	CreateWindowExW 0, .SysLink, .refs, WS_CHILD or WS_VISIBLE or WS_TABSTOP,\
+	CreateWindowExW 0, W "SysLink", .refs, WS_CHILD or WS_VISIBLE or WS_TABSTOP,\
 		20, 20, 500, 100, [.hDialog], IDC_SYSLINK, __ImageBase, 0
 	test rax, rax
 	jrcxz @F
@@ -73,11 +72,10 @@ public SysLinkDlgProc
 .NM_RETURN:
 	enter .frame, 0
 
-{const} .caption du "Link Action",0
-{const} .message_click du "Link selection by mouse click.",0
-{const} .message_return du "Link selection by keyboard return.",0
+{const:2} .message_click du "Link selection by mouse click.",0
+{const:2} .message_return du "Link selection by keyboard return.",0
 
-	MessageBoxW rcx, rdx, addr .caption, MB_OK
+	MessageBoxW rcx, rdx, W "Link Action", MB_OK
 
 	xor eax, eax
 	leave

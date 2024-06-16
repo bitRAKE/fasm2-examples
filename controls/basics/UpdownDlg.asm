@@ -19,20 +19,18 @@ end virtual
 	mov [.hDlg], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_UPDOWN_CLASS
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_UPDOWN_CLASS
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
-{const}	.EDIT du "EDIT",0
-	CreateWindowExW WS_EX_CLIENTEDGE, dword .EDIT, 0, WS_CHILD or WS_VISIBLE,\
+	CreateWindowExW WS_EX_CLIENTEDGE, W "EDIT", 0, WS_CHILD or WS_VISIBLE,\
 		20, 20, 100, 24, [.hDlg], IDC_EDIT, __ImageBase, 0
 	test rax, rax
 	jz @F
 	mov [.hEdit], rax
 
-{const}	.msctls_updown32 du "msctls_updown32",0
-	CreateWindowExW 0, dword .msctls_updown32, 0, WS_CHILD or WS_VISIBLE\
+	CreateWindowExW 0, W "msctls_updown32", 0, WS_CHILD or WS_VISIBLE\
 		or UDS_ALIGNRIGHT or UDS_SETBUDDYINT or UDS_WRAP or UDS_ARROWKEYS or UDS_HOTTRACK,\
 		0, 0, 0, 0, [.hDlg], IDC_UPDOWN, __ImageBase, 0
 	xchg rcx, rax

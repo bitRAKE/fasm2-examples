@@ -2,10 +2,6 @@
 include '..\windows.g'
 include '..\controls.h'
 
-; TODO: setting sizing to show additional buttons without wrapping
-; just send TB_AUTOSIZE?
-
-TB_ADDBUTTONSW := WM_USER + 68
 extrn 'DialogProcW.WM_CLOSE' as ToolbarDlgProc.WM_CLOSE
 
 public ToolbarDlgProc
@@ -27,24 +23,21 @@ public ToolbarDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_BAR_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_BAR_CLASSES
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the Toolbar Bar control.
-{const}	.ToolbarWindow32 du "ToolbarWindow32",0
-	CreateWindowExW 0, .ToolbarWindow32, 0, WS_CHILD or WS_VISIBLE \
+	CreateWindowExW 0, W "ToolbarWindow32", 0, WS_CHILD or WS_VISIBLE \
 		or TBSTYLE_FLAT or CCS_ADJUSTABLE or CCS_NODIVIDER,\
 		0,0,0,0, [.hDialog], IDC_TOOLBAR, __ImageBase, 0
 	test rax, rax
 	jz @F
 	mov [.hToolbar], rax
 
-;	SendMessageW [.hToolbar], TB_SETBITMAPSIZE , 0, 0x0040_0040 ; 64x64
-
 	; Use system-defined images ...
-	{const} .tbAddBmp TBADDBITMAP hInst: HINST_COMMCTRL, nID: IDB_STD_LARGE_COLOR
+{const:8} .tbAddBmp TBADDBITMAP hInst: HINST_COMMCTRL, nID: IDB_STD_LARGE_COLOR
 	SendMessageW [.hToolbar], TB_ADDBITMAP, 0, addr .tbAddBmp
 
 	; Different DLL versions have different default button structure
@@ -84,60 +77,12 @@ iterate <BITMAP,	STATE,		STYLE,			TEXT>,\
 			match ,TEXT
 				.%.str = 0
 			else
-				{const} .%.str du TEXT,0
+				{const:2} .%.str du TEXT,0
 			end match
 		end repeat
 		indx 1
-		{const} align 8
-		{const} label .tbButtons:%%
+		{const:8} label .tbButtons:%%
 	end if
-	{const} .% TBBUTTON iBitmap: BITMAP, fsState: STATE,\
+	{const:8} .% TBBUTTON iBitmap: BITMAP, fsState: STATE,\
 		fsStyle: STYLE, iString: .%.str
 end iterate
-
-
-; TODO: advanced usage:
-;	customization dialog
-;	save/restore state (moveable/toggle)
-;	drop-down menus
-;	multi-size selection
-;	rebar hosted
-if 0
-; Remove all of the existing buttons, starting with the last one.
-:Toolbar__RemoveButtons:
-	virtual at rbp + 16 ; only shadow space
-		.hToolbar	dq ?
-		.count		dd ?
-	end virtual
-	enter .frame, 0
-	mov [.hToolbar], rcx
-	SendMessageW rcx, TB_BUTTONCOUNT, 0, 0
-	mov [.count], eax
-	jmp .try
-.more:
-	SendMessageW [.hToolbar], TB_DELETEBUTTON, [.count], 0
-.try:
-	dec [.count]
-	jns .more
-	leave
-	retn
-
-
-:Toolbar__AddButtons: ;(int sizeButtons){
-	virtual at rbp + 16 ; only shadow space
-		.hToolbar	dq ?
-		.count		dd ?
-	end virtual
-
-	; select from images sizes
-	SendMessageW [.hToolbar], TB_SETIMAGELIST, 0, [g_hImageLists + r9*8]
-
-	SendMessageW [.hToolbar], TB_BUTTONSTRUCTSIZE, sizeof TBBUTTON, 0
-	SendMessageW [.hToolbar], TB_ADDBUTTONS, numButtons, &tbButtons
-
-	// Resize the toolbar
-	SendMessageW [.hToolbar], TB_AUTOSIZE, 0, 0
-	leave
-	retn
-
-end if

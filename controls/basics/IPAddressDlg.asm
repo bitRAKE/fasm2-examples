@@ -20,15 +20,14 @@ public IPAddressDlgProc
 	mov [.hDialog], rcx ; hDialog
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_INTERNET_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_INTERNET_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the IP Address control
 
-{const}	.SysIPAddress32 du "SysIPAddress32",0
-	CreateWindowExW 0, dword .SysIPAddress32, 0, WS_CHILD or WS_VISIBLE,\
+	CreateWindowExW 0, W "SysIPAddress32", 0, WS_CHILD or WS_VISIBLE,\
 		20, 20, 180, 24, [.hDialog], IDC_IPADDRESS, __ImageBase, 0
 	mov [.hIPAddress], rax
 

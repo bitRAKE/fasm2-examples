@@ -20,13 +20,12 @@ public TrackbarDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_WIN95_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_WIN95_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
-{const}	.msctls_trackbar32 du "msctls_trackbar32",0
-	CreateWindowExW 0, .msctls_trackbar32, 0, WS_CHILD or WS_VISIBLE\
+	CreateWindowExW 0, W "msctls_trackbar32", 0, WS_CHILD or WS_VISIBLE\
 		or TBS_AUTOTICKS or TBS_ENABLESELRANGE,\
 		20, 20, 250, 20, [.hDialog], IDC_TRACKBAR, __ImageBase, 0
 	test rax, rax ; hTrackbar
@@ -43,10 +42,3 @@ public TrackbarDlgProc
 	xor eax, eax
 @@:	leave
 	retn
-
-
-; advanced use:
-;	- resource slider
-;	- buddy
-;	- limit
-;	- notifications

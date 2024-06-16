@@ -23,14 +23,13 @@ public RebarDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_COOL_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_COOL_CLASSES
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the ReBar control.
-{const}	.ReBarWindow32 du "ReBarWindow32",0
-	CreateWindowExW WS_EX_TOOLWINDOW, .ReBarWindow32, 0, WS_CHILD or WS_CLIPSIBLINGS or WS_CLIPCHILDREN or WS_VISIBLE \
+	CreateWindowExW WS_EX_TOOLWINDOW, W "ReBarWindow32", 0, WS_CHILD or WS_CLIPSIBLINGS or WS_CLIPCHILDREN or WS_VISIBLE \
 		or RBS_VARHEIGHT or CCS_NODIVIDER or CCS_TOP or RBS_AUTOSIZE,\
 		0,0,0,0, [.hDialog], IDC_REBAR, __ImageBase, 0
 	test rax, rax
@@ -41,8 +40,7 @@ public RebarDlgProc
 ;{data}	.ri REBARINFO cbSize: sizeof .ri;, fMask: RBIM_IMAGELIST
 ;	SendMessageW [.hRebar], RB_SETBARINFO, 0, addr .ri
 
-{const}	.STATIC du "STATIC",0
-	CreateWindowExW 0, .STATIC, 0, WS_CHILD or WS_VISIBLE or SS_ICON or SS_REALSIZEIMAGE or SS_NOTIFY,\
+	CreateWindowExW 0, W "STATIC", 0, WS_CHILD or WS_VISIBLE or SS_ICON or SS_REALSIZEIMAGE or SS_NOTIFY,\
 		0, 0, 0, 0, [.hRebar], 0, __ImageBase, 0
 	label .hStatic:8 at .rbBand.hwndChild
 	mov [.hStatic], rax
@@ -51,7 +49,7 @@ public RebarDlgProc
 
 ; insert bands ...
 
-{data}	.rbBand REBARBANDINFOW cbSize: sizeof .rbBand,\
+{data:8} .rbBand REBARBANDINFOW cbSize: sizeof .rbBand,\
 		fMask: RBBIM_STYLE or RBBIM_CHILDSIZE or RBBIM_CHILD or RBBIM_SIZE,\
 		fStyle: RBBS_CHILDEDGE or RBBS_NOGRIPPER,\
 		cxMinChild: 0, cyMinChild: 20, cx: 20

@@ -26,64 +26,47 @@ fastcall.rf4 equ xmm3
 
 fastcall?.frame = -1
 
-;macro frame?
-;	local size
-;	define fastcall?.frame_size size
-;	fastcall?.frame =: 0
-;	sub rsp,size
-;end macro
-;
-;macro end?.frame?
-;	match size, fastcall?.frame_size
-;		size := fastcall?.frame
-;		add rsp,size
-;	end match
-;	restore fastcall?.frame,fastcall?.frame_size
-;end macro
-;
-;macro endf?
-;	end frame
-;end macro
-;
-;macro fastcall?.inline_string var
-;	local data,continue
-;	jmp continue
-;	if sizeof.TCHAR > 1
-;		align sizeof.TCHAR,90h
-;	end if
-;	match value, var
-;		data TCHAR value,0
-;	end match
-;	redefine var data
-;	continue:
-;end macro
+macro fastcall?.inline_string type,var
+	local data
+	if type = 2 ; WIDE
+		match value, var
+			COFF.2.CONST data du value,0
+		end match
+		redefine var data
+	else if type = 1 ; ANSI/UTF8
+		match value, var
+			COFF.1.CONST data db value,0
+		end match
+		redefine var data
+	else if type = -1 ; BSTR
+		err 'not implemented'
+;			match value, var
+;				COFF.1.CONST data db value,0
+;			end match
+;			redefine var data
+	else if type = 0 ; raw statements
+		match value, var
+			COFF.1.CONST data value
+		end match
+		redefine var data
+	else
+		err 'unknown string type'
+	end if
+end macro
 
+; TODO: the optimization should be in the MOV instruction. Global optimization
+; flags are needed to track how much machine state can be disregarded.
+;	+ flags can be modified
+;	+ lower stack can be modified
+;	+ ABI volatile registers can be modified
+;	+ etc.
 
-macro fastcall?: proc*,args&
-	local offset,framesize,type,value
+macro fastcall? proc*,args&
+	local offset,framesize,type,value,target
 	if framesize & fastcall?.frame < 0
 		sub rsp,framesize
 	end if
 	offset = 0
-	local nest,called
-	called = 0
-	iterate arg, args
-		nest = 0
-		match =invoke? func, arg
-			nest = %
-		else match =fastcall? func, arg
-			nest = %
-		end match
-		if nest
-			if called
-				mov [rsp+8*(called-1)],rax
-			end if
-			frame
-				arg
-			end frame
-			called = nest
-		end if
-	end iterate
 	iterate arg, args
 		match =float? val, arg
 			type = 'f'
@@ -93,39 +76,37 @@ macro fastcall?: proc*,args&
 			type = 'a'
 			value reequ val
 			x86.parse_operand@src [val]
-		else match =invoke? func, arg
-			if called = %
-				type = 0
-				value reequ rax
-				x86.parse_operand@src rax
-			else
-				type = 'r'
-			end if
-		else match =fastcall? func, arg
-			if called = %
-				type = 0
-				value reequ rax
-				x86.parse_operand@src rax
-			else
-				type = 'r'
-			end if
-		else match first=,rest, arg
-			type = 's'
+		else match =&val, arg
+			type = 'a'
+			value reequ val
+			x86.parse_operand@src [val]
+		else match first=,rest, arg ; group <>
+			type = 'a'
 			value reequ arg
+			fastcall.inline_string 0,value
+		else match =A rest, arg ; ANSI
+			type = 'a'
+			value reequ rest
+			fastcall.inline_string 1,value
+		else match =B rest, arg ; BSTR
+			type = 'a'
+			value reequ rest
+			fastcall.inline_string -1,value
+		else match =W rest, arg ; WIDE
+			type = 'a'
+			value reequ rest
+			fastcall.inline_string 2,value
 		else
 			type = 0
 			value reequ arg
 			SSE.parse_operand@src arg
 			if @src.type = 'imm' & @src.size = 0
 				if value eqtype ''
-					type = 's'
+					err 'no default string type, use string prefix'
 				end if
 			end if
 		end match
-		if type = 's'
-			fastcall.inline_string value
-			type = 'a'
-		end if
+;------------------------------------------------------------------------------
 		if % < 5
 			if type = 'f'
 				if @src.size = 8 | ~ @src.size | @src.type = 'mmreg'
@@ -149,28 +130,42 @@ macro fastcall?: proc*,args&
 				if type = 'a'
 					lea fastcall.r#%,[value]
 				else
-					if type = 'r'
-						@src.size = 8
-						@src.type = 'mem'
-						value equ [rsp+8*(%-1)]
-					end if
 					if @src.size = 8 | ~ @src.size
-						redefine target fastcall.r#%
 						if @src.type <> 'reg' | ~ @src.imm eq fastcall.r#%
-							mov fastcall.r#%,value
+if @src.type = 'imm' & (@src.imm) relativeto 0
+	if 0 = @src.imm
+		xor fastcall.rd#%,fastcall.rd#%
+	else if -129 < (@src.imm) & (@src.imm) < 128
+		push value
+		pop fastcall.r#%
+	else
+		mov fastcall.r#%, value
+	end if
+else
+	mov fastcall.r#%,value
+end if
 						end if
 					else if @src.size = 4
-						redefine target fastcall.rd#%
 						if @src.type <> 'reg' | ~ @src.imm eq fastcall.rd#%
+if @src.type = 'imm' & (@src.imm) relativeto 0
+	if 0 = @src.imm
+		xor fastcall.rd#%,fastcall.rd#%
+	else if -129 < (@src.imm) & (@src.imm) < 128
+		push value
+		pop fastcall.r#%
+	else
+		mov fastcall.rd#%,value
+	end if
+else
+	mov fastcall.rd#%,value
+end if
 							mov fastcall.rd#%,value
 						end if
 					else if @src.size = 2
-						redefine target fastcall.r#%
 						if @src.type <> 'reg' | ~ @src.imm eq fastcall.rw#%
 							mov fastcall.rw#%,value
 						end if
 					else if @src.size = 1
-						redefine target fastcall.rb#%
 						if @src.type <> 'reg' | ~ @src.imm eq fastcall.rb#%
 							mov fastcall.rb#%,value
 						end if
@@ -179,10 +174,8 @@ macro fastcall?: proc*,args&
 					end if
 				end if
 			end if
-		else
-			if type = 'r'
-				; already on stack
-			else if @src.type = 'reg'
+		else ;------------------------------------------------memory destinations:
+			if @src.type = 'reg'
 				mov [rsp+offset],value
 			else if @src.type = 'mem'
 				if type = 'a'
@@ -205,19 +198,41 @@ macro fastcall?: proc*,args&
 						err 'invalid argument ',`arg
 					end if
 				end if
+; optimize for size
 			else if @src.type = 'imm'
 				if @src.size = 8 | ~ @src.size
-					if (value) relativeto 0 & (value) - 1 shl 64 >= -80000000h & (value) < 1 shl 64
-						mov rax,(value) - 1 shl 64
-						mov [rsp+offset],rax
-					else if (value) relativeto 0 & ( (value) >= 80000000h | (value) < -80000000h )
-						mov rax,value
-						mov [rsp+offset],rax
-					else
-						mov qword [rsp+offset],value
-					end if
+if (value) relativeto 0
+	if 0 = value
+		and qword [rsp+offset],0
+	else if -1 = value | 0xFFFF_FFFF_FFFF_FFFF = value
+		or qword [rsp+offset],-1
+	else if -129 < (value) & (value) < 128
+		push value
+		pop [rsp+offset]
+	else if -0x8000_0001 < (value) & (value) < 0x8000_0000
+		mov qword [rsp+offset], value
+	else if (value)shr 64 = 0 | (value)shr 64 = -1
+		mov rax,(value) and 0xFFFF_FFFF_FFFF_FFFF
+		mov [rsp+offset],rax
+	end if
+else
+	mov qword [rsp+offset],value
+end if
 				else if @src.size = 4
-					mov dword [rsp+offset],value
+if (value) relativeto 0
+	if 0 = value
+		and dword [rsp+offset],0
+	else if -1 = value | 0xFFFF_FFFF = value
+		or dword [rsp+offset],-1
+	else if -129 < (value) & (value) < 128
+		push value
+		pop [rsp+offset]
+	else if (value)shr 32 = 0 | (value)shr 32 = -1
+		mov [rsp+offset],value
+	end if
+else
+	mov dword [rsp+offset],value
+end if
 				else if @src.size = 2
 					mov word [rsp+offset],value
 				else if @src.size = 1

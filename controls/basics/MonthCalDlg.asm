@@ -20,13 +20,12 @@ public MonthCalDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_DATE_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_DATE_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @0F
 
-{const}	.SysMonthCal32 du "SysMonthCal32",0
-	CreateWindowExW 0, dword .SysMonthCal32, 0, WS_CHILD or WS_VISIBLE,\
+	CreateWindowExW 0, W "SysMonthCal32", 0, WS_CHILD or WS_VISIBLE,\
 		20, 20, 280, 200, [.hDialog], IDC_MONTHCAL, __ImageBase, 0
 	test rax, rax
 	jz @0F

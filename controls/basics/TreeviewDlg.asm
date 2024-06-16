@@ -24,15 +24,14 @@ public TreeviewDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_TAB_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_TAB_CLASSES
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the Tab control to fill client area.
 	GetClientRect [.hDialog], addr .rc
-{const}	.SysTreeView32 du "SysTreeView32",0
-	CreateWindowExW 0, .SysTreeView32, 0, WS_CHILD or WS_VISIBLE \
+	CreateWindowExW 0, W "SysTreeView32", 0, WS_CHILD or WS_VISIBLE \
 		or TVS_HASLINES or TVS_LINESATROOT or TVS_HASBUTTONS,\
 		[.rc.left], [.rc.top], [.rc.right], [.rc.bottom],\
 		[.hDialog], IDC_TREEVIEW, __ImageBase, 0
@@ -40,7 +39,7 @@ public TreeviewDlgProc
 	jz @F
 	mov [.hTreeView], rax
 
-{const} .tree_icons dw \
+{const:2} .tree_icons dw \
 \;	normal	selected
 	4,	146,\	; folder
 	1,	21,\	; file
@@ -62,7 +61,7 @@ public TreeviewDlgProc
 	jz @F ; fail
 	SendMessageW [.hTreeView], TVM_SETIMAGELIST, TVSIL_NORMAL, rax
 
-{data}	.tvis TVINSERTSTRUCT \
+{data:8} .tvis TVINSERTSTRUCT \
 	itemex: <mask: TVIF_TEXT or TVIF_IMAGE or TVIF_SELECTEDIMAGE>
 
 	iterate <TEXT,		IMAGE,		PARENT>,\
@@ -78,7 +77,7 @@ public TreeviewDlgProc
 		"Fourth", 	0,		TVI_ROOT,\
 		"Fifth", 	0,		TVI_ROOT
 
-		{const} .% du TEXT,0
+		{const:2} .% du TEXT,0
 
 		mov [.tvis.itemex.pszText], .%
 		; note: cchTextMax member ignored on setting text
@@ -88,8 +87,6 @@ public TreeviewDlgProc
 		match -, PARENT ; deeper
 			mov [.tvis.hParent], rax
 		else match |, PARENT ; continue last parent
-;			mov [.tvis.hInsertAfter], rax
-;			mov [.tvis.hInsertAfter], POSITION
 		else
 			mov [.tvis.hParent], PARENT
 		end match
@@ -115,11 +112,3 @@ public TreeviewDlgProc
 @@:	xor eax, eax
 	leave
 	retn
-
-
-
-; advanced features:
-;	TVITEMEX.iIntegral
-;	edit item labels
-;	tooltips
-;	drag/drop

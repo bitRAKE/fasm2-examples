@@ -40,7 +40,7 @@ public ListviewDlgProc
 	SetWindowTextW rcx, r9 ; parent has given name
 
 	; Load and register ComboBoxEx control class.
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LISTVIEW_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LISTVIEW_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
@@ -60,8 +60,7 @@ public ListviewDlgProc
 ; Create the Listview control filling parent window.
 
 	GetClientRect [.hDialog], addr .rc
-{const} .SysListView32 du "SysListView32",0
-	CreateWindowExW 0, .SysListView32, 0, WS_CHILD or WS_VISIBLE \
+	CreateWindowExW 0, W "SysListView32", 0, WS_CHILD or WS_VISIBLE \
 		or LVS_SHOWSELALWAYS or LVS_AUTOARRANGE,\;or LVS_ICON 
 		[.rc.left], [.rc.top], [.rc.right], [.rc.bottom],\
 		[.hDialog], IDC_LISTVIEW, __ImageBase, 0
@@ -72,7 +71,7 @@ public ListviewDlgProc
 ; create & prepare image lists with icons from the resource:
 ; note: last applied image list is the style. Yes, regardless of style set during creation.
 
-{const} .list_icons dw 4,20,39,46,172,210,267,16715,16781,16784,16804,16806,37219,0 ; TERMINATOR
+{const:2} .list_icons dw 4,20,39,46,172,210,267,16715,16781,16784,16804,16806,37219,0 ; TERMINATOR
 	.icons := 13
 
 	GetSystemMetrics SM_CXSMICON
@@ -103,8 +102,8 @@ public ListviewDlgProc
 
 ; Add items to the the list view common control.
 
-{data}	.item_text du "Item XX",0
-{const} .10 dd 10
+{data:2} .item_text du "Item XX",0
+{const:4} .10 dd 10
 	xor esi, esi
 	xor edx, edx
 	xor ebx, ebx
@@ -126,7 +125,7 @@ public ListviewDlgProc
 
 	mov [.lvi.iImage], ebx ; 0-based, image indexing
 	inc ebx
-	SendMessageW [.hListview], LVM_INSERTITEMW, 0, addr .lvi ;?:BUG:-1
+	SendMessageW [.hListview], LVM_INSERTITEMW, 0, addr .lvi
 
 	xor edx, edx
 	cmp ebx, .icons

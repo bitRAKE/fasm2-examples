@@ -134,7 +134,7 @@ end if
 	xor eax, eax ; ZF=1
 	jmp .fail_hard
 
-{const}	.shell32 du "shell32.dll",0
+{const:2} .shell32 du "shell32.dll",0
 
 
 
@@ -231,21 +231,20 @@ iterate <title,				brief>,\
 ;	'Ribbon',			Ribbon,\
 
 	if % = 1
-{const}		align 8
-{const}		label .DlgProc_Table:8
+{const:8}	label .DlgProc_Table:8
 		repeat %%
 			indx %
 			eval 'extrn ',`brief,'DlgProc'
-{const}			dq brief#DlgProc
+{const:8}		dq brief#DlgProc
 		end repeat
-{const}		label .DlgTitle_Table:8
+{const:8}	label .DlgTitle_Table:8
 		repeat %%
-{const}			dq .%
+{const:8}		dq .%
 		end repeat
 		indx 1
 	end if
 
-{const} .% du title bappend ' Control - Close with <Alt+F4>!',0
+{const:2} .% du title bappend ' Control - Close with <Alt+F4>!',0
 
 end iterate
 

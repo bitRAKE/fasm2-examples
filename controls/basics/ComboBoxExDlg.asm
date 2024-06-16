@@ -29,14 +29,13 @@ public ComboBoxExDlgProc
 	SetWindowTextW rcx, r9 ; parent has given name
 
 	; Load and register ComboBoxEx control class.
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_USEREX_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_USEREX_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @0F
 
 	; Create the ComboBoxEx control.
-{const} .ComboBoxEx32 du 'ComboBoxEx32',0
-	CreateWindowExW 0, dword .ComboBoxEx32, 0, WS_CHILD or WS_VISIBLE or CBS_DROPDOWN,\
+	CreateWindowExW 0, W "ComboBoxEx32", 0, WS_CHILD or WS_VISIBLE or CBS_DROPDOWN,\
 		20, 20, 280, 100, [.hDialog], IDC_COMBOBOXEX, __ImageBase, 0
 	test rax, rax ; hComboEx
 	jz @0F
@@ -67,7 +66,7 @@ public ComboBoxExDlgProc
 	mov [.cbei.mask], CBEIF_IMAGE or CBEIF_TEXT or CBEIF_SELECTEDIMAGE
 	mov [.cbei.iItem], -1 ; append items to end
 	repeat .nIconCount
-{const}	.%.txt du 'Item ',`%,0
+{const:2} .%.txt du 'Item ',`%,0
 		mov [.cbei.pszText], .%.txt
 		mov [.cbei.iImage], %-1
 		mov [.cbei.iSelectedImage], %-1

@@ -30,15 +30,14 @@ public HeaderDlgProc
 	SetWindowTextW rcx, r9 ; parent has given name
 
 	; Load and register Header control class.
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LISTVIEW_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_LISTVIEW_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the Header control.
 	; Note: no WS_VISIBLE here, sizing will show control.
-{const}	.SysHeader32 du "SysHeader32",0
-	CreateWindowExW 0, dword .SysHeader32, 0, WS_CHILD or WS_VISIBLE \
+	CreateWindowExW 0, W "SysHeader32", 0, WS_CHILD or WS_VISIBLE \
 		or HDS_HORZ or HDS_BUTTONS or HDS_DRAGDROP or HDS_HOTTRACK,\
 		0, 0, 0, 0, [.hDialog], IDC_HEADER, __ImageBase, 0
 	test rax, rax
@@ -62,7 +61,7 @@ public HeaderDlgProc
 	div ecx
 	mov [.hdi.cxy], eax ; width
 	repeat 5 ; add header items
-{const}		.% du "Header ",`%,0
+{const:2}	.% du "Header ",`%,0
 		if % = %%
 			.hitems := %%
 			repeat %%

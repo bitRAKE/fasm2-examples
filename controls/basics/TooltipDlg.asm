@@ -19,14 +19,12 @@ public TooltipDlgProc
 	mov [.ti.hwnd], rcx ; hDialog
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_WIN95_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_WIN95_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
-{const}	.BUTTON du "BUTTON",0
-{const}	.txt du "Tooltip Target",0
-	CreateWindowExW 0, dword .BUTTON, dword .txt, WS_CHILD or WS_VISIBLE,\
+	CreateWindowExW 0, W "BUTTON", W "Tooltip Target", WS_CHILD or WS_VISIBLE,\
 		20, 20, 120, 40, [.hDialog], IDC_BUTTON1, __ImageBase, 0
 	test rax, rax
 	jz @F
@@ -35,14 +33,13 @@ public TooltipDlgProc
 	; Create a tooltip
 	; A tooltip control should not have the WS_CHILD style, nor should it
 	; have an id, otherwise its behavior will be adversely affected.
-{const}	.tooltips_class32 du "tooltips_class32",0
-	CreateWindowExW 0, dword .tooltips_class32, 0, TTS_ALWAYSTIP,\
+	CreateWindowExW 0, W "tooltips_class32", 0, TTS_ALWAYSTIP,\
 		0, 0, 0, 0, [.hDialog], 0, __ImageBase, 0
 	test rax, rax
 	jz @F
 
-{const}	.tip du "A button by another name is still just a button.",0
-{data}	.ti TOOLINFO cbSize: sizeof .ti,\
+{const:2} .tip du "A button by another name is still just a button.",0
+{data:8} .ti TOOLINFO cbSize: sizeof .ti,\
 		uFlags: TTF_IDISHWND or TTF_SUBCLASS,\
 		lpszText: .tip
 

@@ -2,14 +2,14 @@
 include '..\windows.g'
 include '..\controls.h'
 
-extrn DialogProcW.WM_CLOSE
+extrn "DialogProcW.WM_CLOSE" as StatusbarDlgProc.WM_CLOSE
 
 public StatusbarDlgProc
 :StatusbarDlgProc:
 	cmp edx, WM_SIZE
 	jz .WM_SIZE
 	cmp edx, WM_CLOSE
-	jz DialogProcW.WM_CLOSE
+	jz .WM_CLOSE
 	cmp edx, WM_INITDIALOG
 	jz .WM_INITDIALOG
 	xor eax, eax
@@ -25,15 +25,14 @@ public StatusbarDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_BAR_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_BAR_CLASSES
 	InitCommonControlsEx .iccx
 	test eax, eax ; BOOL
 	jz @F
 
 	; Create the Status Bar control, size ignored.
 
-{const}	.msctls_statusbar32 du "msctls_statusbar32",0
-	CreateWindowExW 0, .msctls_statusbar32, 0,\
+	CreateWindowExW 0, W "msctls_statusbar32", 0,\
 		WS_CHILD or WS_VISIBLE or SBARS_SIZEGRIP,\
 		0,0,0,0, [.hDialog], IDC_STATUSBAR, __ImageBase, 0
 	test rax, rax
@@ -46,14 +45,13 @@ public StatusbarDlgProc
 	call .WM_SIZE ; common status bar sizing below
 
 	; Put some texts into each part of the status bar and setup each part
-	iterate <style, text>,\
+	iterate <STYLE, TEXT>,\
 		0,		"Status Bar: Part 1",\; appears lower
 		SBT_POPOUT,	"Part 2",\
 		SBT_NOBORDERS,	"Part 3",\
 		SBT_POPOUT,	"Part 4"
 
-		{const} .% du text,0
-		SendMessageW [.hStatusbar], SB_SETTEXTW, style or (%-1), addr .%
+		SendMessageW [.hStatusbar], SB_SETTEXTW, STYLE or (%-1), W TEXT
 	end iterate
 @@:	leave
 	xor eax, eax

@@ -15,13 +15,12 @@ public DateTimePickDlgProc
 	mov [.hDialog], rcx
 	SetWindowTextW rcx, r9 ; parent has given name
 
-{const}	.iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_DATE_CLASSES
+{const:8} .iccx INITCOMMONCONTROLSEX dwSize: sizeof .iccx, dwICC: ICC_DATE_CLASSES
 	InitCommonControlsEx dword .iccx
 	test eax, eax ; BOOL
 	jz @F
 
-{const}	.SysDateTimePick32 du "SysDateTimePick32",0
-	CreateWindowExW 0, dword .SysDateTimePick32, 0, WS_CHILD or WS_VISIBLE,\
+	CreateWindowExW 0, W "SysDateTimePick32", 0, WS_CHILD or WS_VISIBLE,\
 		20, 20, 150, 30, [.hDialog], IDC_DATETIMEPICK, __ImageBase, 0
 @@:	leave
 @0:	xor eax, eax
