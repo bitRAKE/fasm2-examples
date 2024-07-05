@@ -1,10 +1,10 @@
-
+;
 ; SysLink advanced control detail:
 ;
 ; build with:
 ;	fasm2 SysLink.asm
 ;	link @SysLink.response SysLink.obj
-
+;
 include 'windows.g'
 include 'SysLink.g' ; control interface
 
@@ -19,7 +19,7 @@ public WinMainCRTStartup
 
 :SysLinkDlgProc:
 	enter .frame, 0
-	iterate message, WM_NOTIFY,WM_CLOSE,WM_INITDIALOG
+	iterate message, WM_NOTIFY,WM_COMMAND,WM_CLOSE,WM_INITDIALOG
 		cmp edx, message
 		jz .message
 	end iterate
@@ -29,6 +29,11 @@ public WinMainCRTStartup
 
 {bss:8} .hSysLink dq ? ; static value with future use
 
+.WM_COMMAND:; This is a trick to allow the ESC key to exit.
+	test r9,r9
+	jnz @0B
+	cmp r8, IDCANCEL ; undocumented menu command?
+	jnz @0B
 .WM_CLOSE:
 	EndDialog rcx, 0
 	jmp @0B
@@ -37,7 +42,6 @@ public WinMainCRTStartup
 	virtual at rbp+16
 		.rc		RECT
 		.hDlg		dq ?
-		.new_bottom	dd ?
 		.change		dd ?
 		assert $-$$ < 33 ; don't exceed shadow space
 	end virtual
@@ -48,14 +52,13 @@ public WinMainCRTStartup
 	xchg rcx, rax
 	jrcxz @0B
 
- ; simplied sizing of just the bottom of control and parent dialog
+ ; simplified sizing of just the bottom of control and parent dialog
  ; TODO: dynamic SysLink sizing
 
 	GetWindowRect [.hSysLink], & .rc
 	mov r8d, [.rc.right]
 	sub r8d, [.rc.left]
 	SendMessageW [.hSysLink], LM_GETIDEALHEIGHT, r8d, 0
-	mov [.new_bottom], eax
 	mov ecx, [.rc.bottom]
 	sub ecx, [.rc.top]
 	sub ecx, eax
@@ -132,25 +135,10 @@ public WinMainCRTStartup
 	MessageBoxW [.hSysLink], & .buffer, W "Link Action", MB_OK
 	jmp @0B
 
-
-
-BLOCK COFF.4.CONST
-
-	SysLinkDialog DLGTEMPLATEEX title: "Assemble-time SysLink",\
-		exStyle: WS_EX_TOOLWINDOW,\
-		style: DS_CENTERMOUSE or DS_SETFOREGROUND or DS_NOIDLEMSG\
-			or WS_POPUP or WS_VISIBLE or WS_CAPTION or WS_THICKFRAME,\
-		cx: 256, cy: 256, pointsize: 9, typeface: "Segoe UI"
-
-; FYI: the Microsoft resource compiler doesn't fully support the extent
-; of the control interface correctly. Try to compile this in RC.EXE:
-
-	DLGITEMTEMPLATEEX id: IDC_SYSLINK, windowClass: "SysLink",\
-		x: 4, y: 4, cx: 248, cy: 248,\
-		style: LWS_TRANSPARENT or LWS_NOPREFIX or LWS_USEVISUALSTYLE or WS_TABSTOP or WS_VISIBLE or WS_CHILD,\
-		title: <\
+virtual ; The syntax looks cleaner if we gather the string here for use later.
+db\ ; it could be separate file, etc.
 'Links can be <a>clicked</a>, or <a id="VK_TAB">tab</a> navigated to and selected by',\
-' <a id="VK_RETURN">return</a> or <a id="VK_SPACE">space</a>. Either an HREF or ID',\
+' <a id="VK_RETURN">return</a> or <a id="VK_SPACE">space</a>. Links can have attributes, an HREF and/or ID',\
 ' can be assigned to the link, but that is not required. It all depends on what is',\
 ' useful in the notification handler. Typically, <a>NM_CLICK</a> and <a>NM_RETURN</a>',\
 ' result in the same action regardless of how selection was made. ',10,10,\
@@ -163,7 +151,27 @@ BLOCK COFF.4.CONST
 ' <a href="https://github.com/tgrysztar/fasm2">fasm2</a>.',\
 ' It is an interesting exploration in low-level programming.',10,10,\
 'Note: <a>all</a> these links are a single control.',10,10,\
-'Also note: <a id="Hello World!" href="https://github.com/bitRAKE">links can have both id and href</a>.'>
+'Also note: <a id="Hello World!" href="https://github.com/bitRAKE">links can have both id and href</a>.',10,10,\
+'Also note: theming a SysLink with LWS_USEVISUALSTYLE will overwrite the default font setting from parent.'
+load link_string:$-$$ from $$
+end virtual
+
+BLOCK COFF.4.CONST
+
+	SysLinkDialog DLGTEMPLATEEX title: "Assemble-time SysLink",\
+		exStyle: WS_EX_TOOLWINDOW,\
+		style: DS_CENTERMOUSE or DS_SETFOREGROUND or DS_NOIDLEMSG\
+			or WS_POPUP or WS_VISIBLE or WS_CAPTION or WS_THICKFRAME,\
+		cx: 160, cy: 256, pointsize: 13, typeface: "Segoe UI"
+
+; FYI: the Microsoft resource compiler doesn't fully support the extent
+; of the control interface correctly. Try to compile this in RC.EXE:
+;
+; LWS_USEVISUALSTYLE will overwrite the dialog font.
+
+	DLGITEMTEMPLATEEX title: link_string, id: IDC_SYSLINK, windowClass: "SysLink",\
+		style: LWS_TRANSPARENT or LWS_NOPREFIX or WS_TABSTOP or WS_VISIBLE or WS_CHILD,\
+		x: 4, y: 2, cx: 152, cy: 250
 
 END BLOCK
 

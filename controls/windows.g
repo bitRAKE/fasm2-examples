@@ -36,6 +36,23 @@ end iterate
 ;calminstruction testing
 ;	call COFF.2.CONST data =du value
 ;end calminstruction
+macro BLOCK anchor* ; kind of handy to prefix a group of lines
+	calminstruction ? line&
+		local prefix,any
+		initsym prefix, anchor
+		match =END =BLOCK, line
+		jno pre
+		match =COFF=.line=.any,prefix
+		jno xa
+		arrange line, prefix =align line
+		assemble line
+	xa:	arrange line, =purge ?
+		jump ok
+	pre:	arrange line, prefix line
+	ok:	assemble line
+	end calminstruction
+end macro
+
 ;------------------------------------------------------------------------------
 
 ; remove some features of the fasm2 packaged distribution:
@@ -66,6 +83,7 @@ include 'fastcall.g'
 ;include 'macro/import64.inc'	; managed by linker in COFF objects
 ;include 'macro/export.inc'	; managed by linker in COFF objects
 ;include 'macro/resource.inc'	; managed by linker in COFF objects
+include 'dlg32.g' ; dialog template
 
 Struct.CheckAlignment = 1
 
@@ -110,7 +128,8 @@ end calminstruction
 
 ;-------------------------------------------------------------- light proc-like
 calminstruction ?? &line&
-	; TODO: add function features? Presently MUST be complete line
+; TODO: does caching last name break anything?
+; TODO: add function features? Presently MUST be complete line
 	match :named:,line
 	jyes fn
 	assemble line
@@ -161,7 +180,7 @@ extrn __ImageBase ; the linker knows
 
 ; TODO: finalize constant data
 
-align?.count = 1 ; reset align
+align?.count = 1 ; reset assumes
 
 ; output collection macros
 iterate <ANCHOR,HEADER>,\
@@ -175,6 +194,7 @@ iterate <ANCHOR,HEADER>,\
 	COFF.ANCHOR:
 	iterate V,64,32,16,8,4,2,1
 		COFF.V.ANCHOR
+		assert ($-COFF.ANCHOR) and (V-1) = 0 ; enforce alignment
 	end iterate
 	COFF.ANCHOR.BYTES := $ - COFF.ANCHOR
 ;	repeat 1,B:COFF.ANCHOR.BYTES
