@@ -6,7 +6,7 @@
 ;	link @SysLink.response SysLink.obj
 ;
 include 'windows.g'
-include 'SysLink.g' ; control interface
+include 'commctl\SysLink.g' ; control interface
 
 IDC_SYSLINK := 0x1234
 
@@ -30,7 +30,7 @@ public WinMainCRTStartup
 {bss:8} .hSysLink dq ? ; static value with future use
 
 .WM_COMMAND:; This is a trick to allow the ESC key to exit.
-	test r9,r9
+	test r9, r9
 	jnz @0B
 	cmp r8, IDCANCEL ; undocumented menu command?
 	jnz @0B
@@ -63,15 +63,23 @@ public WinMainCRTStartup
 	sub ecx, [.rc.top]
 	sub ecx, eax
 	mov [.change], ecx
+	sub [.rc.bottom], ecx
 
-	GetWindowRect [.hDlg], & .rc
 	mov r8d, [.rc.left]
 	mov r9d, [.rc.top]
 	sub [.rc.right], r8d
 	sub [.rc.bottom], r9d
+	SetWindowPos [.hSysLink], 0, r8,r9,[.rc.right],[.rc.bottom],\
+		SWP_NOMOVE or SWP_NOZORDER
 
-	mov eax, [.change]
-	sub [.rc.bottom], eax
+	GetWindowRect [.hDlg], & .rc
+	mov ecx, [.change]
+	sub [.rc.bottom], ecx
+
+	mov r8d, [.rc.left]
+	mov r9d, [.rc.top]
+	sub [.rc.right], r8d
+	sub [.rc.bottom], r9d
 	SetWindowPos [.hDlg], 0, r8,r9,[.rc.right],[.rc.bottom],\
 		SWP_NOMOVE or SWP_NOZORDER
 	jmp @0B
@@ -126,52 +134,37 @@ public WinMainCRTStartup
 
 @@:	wsprintfW & .buffer, <du \
 		"Notification code %S indicating %S selected.",10,\
-		9,"iLink #: %d",10,\
-		9,"ID : %s",10,\
-		9,"URL : %s",0>, r8, r9, [r10 + NMLINK.item.iLink],\
+		9,"iLink #%d, ID: %s",10,\
+		9,"URL: %s",0>, r8, r9, [r10 + NMLINK.item.iLink],\
 		& r10 + NMLINK.item.szID, & r10 + NMLINK.item.szUrl
 
 	{bss:64} .buffer rw 4096
 	MessageBoxW [.hSysLink], & .buffer, W "Link Action", MB_OK
 	jmp @0B
 
+
+
+; FYI: the Microsoft resource compiler doesn't fully support the extent
+; of the control interface correctly. Don't try to do this with RC.EXE.
+
 virtual ; The syntax looks cleaner if we gather the string here for use later.
-db\ ; it could be separate file, etc.
-'Links can be <a>clicked</a>, or <a id="VK_TAB">tab</a> navigated to and selected by',\
-' <a id="VK_RETURN">return</a> or <a id="VK_SPACE">space</a>. Links can have attributes, an HREF and/or ID',\
-' can be assigned to the link, but that is not required. It all depends on what is',\
-' useful in the notification handler. Typically, <a>NM_CLICK</a> and <a>NM_RETURN</a>',\
-' result in the same action regardless of how selection was made. ',10,10,\
-'The <a>SysLink</a> control''s parent responds to <a>WM_GETFONT</a> and determines',\
-' the font used for display. Of course, <a>WM_SETFONT</a> can manually change the',\
-' font. ',10,10,\
-'These examples are <a id="coded">coded</a> by',\
-' <a href="https://github.com/bitRAKE">bitRAKE</a>, using the latest dialect of the',\
-' <a href="http://flatassembler.net">fasm</a> family of languages,',\
-' <a href="https://github.com/tgrysztar/fasm2">fasm2</a>.',\
-' It is an interesting exploration in low-level programming.',10,10,\
-'Note: <a>all</a> these links are a single control.',10,10,\
-'Also note: <a id="Hello World!" href="https://github.com/bitRAKE">links can have both id and href</a>.',10,10,\
-'Also note: theming a SysLink with LWS_USEVISUALSTYLE will overwrite the default font setting from parent.'
-load link_string:$-$$ from $$
+	file 'SysLink.xml' ; so much easier to edit!
+	load link_string:$-$$ from $$
 end virtual
 
 BLOCK COFF.4.CONST
 
-	SysLinkDialog DLGTEMPLATEEX title: "Assemble-time SysLink",\
+	; Note: Intentionally make dialog short to test auto-sizing based on text.
+;DS_CENTERMOUSE
+	SysLinkDialog DLGTEMPLATEEX title: "Assemble-time SysLink Control Example",\
 		exStyle: WS_EX_TOOLWINDOW,\
-		style: DS_CENTERMOUSE or DS_SETFOREGROUND or DS_NOIDLEMSG\
+		style: DS_CENTER or DS_SETFOREGROUND or DS_NOIDLEMSG\
 			or WS_POPUP or WS_VISIBLE or WS_CAPTION or WS_THICKFRAME,\
-		cx: 160, cy: 256, pointsize: 13, typeface: "Segoe UI"
-
-; FYI: the Microsoft resource compiler doesn't fully support the extent
-; of the control interface correctly. Try to compile this in RC.EXE:
-;
-; LWS_USEVISUALSTYLE will overwrite the dialog font.
+		cx: 240, cy: 16, pointsize: 11, typeface: "Segoe UI"
 
 	DLGITEMTEMPLATEEX title: link_string, id: IDC_SYSLINK, windowClass: "SysLink",\
 		style: LWS_TRANSPARENT or LWS_NOPREFIX or WS_TABSTOP or WS_VISIBLE or WS_CHILD,\
-		x: 4, y: 2, cx: 152, cy: 250
+		x: 4, y: 2, cx: 240-8, cy: 16-4
 
 END BLOCK
 

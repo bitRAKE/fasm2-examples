@@ -1,0 +1,15 @@
+Links can be <a>clicked</a>, or <a id="VK_TAB">tab</a> navigated to and selected by <a id="VK_RETURN">return</a> or <a id="VK_SPACE">space</a>. Links can have attributes, an HREF and/or ID can be assigned to the link, but that is not required. It all depends on what is useful in the notification handler. Typically, <a>NM_CLICK</a> and <a>NM_RETURN</a> result in the same action regardless of how selection was made.
+
+The <a>SysLink</a> control's parent responds to <a>WM_GETFONT</a> and determines the font used for display. Of course, <a>WM_SETFONT</a> can manually change the font. Theming a SysLink with LWS_USEVISUALSTYLE will overwrite the default font setting from parent.
+
+These examples are <a id="Rumpelstiltskin">coded</a> by <a href="https://github.com/bitRAKE">bitRAKE</a>, using the latest dialect of the <a href="http://flatassembler.net">fasm</a> family of languages, <a href="https://github.com/tgrysztar/fasm2">fasm2</a>. It is an interesting exploration in low-level programming.
+
+Note: <a>all</a> these links are a single control.
+
+<a id="Hello World!" href="https://github.com/bitRAKE">Links can have both id and href</a>.
+
+Also note: Clicking on a link does not change focus. Does (not WS_TABSTOP) prevent NM_RETURN from being sent? No, additional steps are needed to prevent the control from having keyboard focus.
+
+Tab(9) characters are not supported in the text.
+
+Press ESC key to exit.
