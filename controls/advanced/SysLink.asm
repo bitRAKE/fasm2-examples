@@ -155,10 +155,10 @@ end virtual
 BLOCK COFF.4.CONST
 
 	; Note: Intentionally make dialog short to test auto-sizing based on text.
-;DS_CENTERMOUSE
+
 	SysLinkDialog DLGTEMPLATEEX title: "Assemble-time SysLink Control Example",\
 		exStyle: WS_EX_TOOLWINDOW,\
-		style: DS_CENTER or DS_SETFOREGROUND or DS_NOIDLEMSG\
+		style: DS_CENTERMOUSE or DS_SETFOREGROUND or DS_NOIDLEMSG\
 			or WS_POPUP or WS_VISIBLE or WS_CAPTION or WS_THICKFRAME,\
 		cx: 240, cy: 16, pointsize: 11, typeface: "Segoe UI"
 
