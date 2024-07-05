@@ -3,11 +3,6 @@ include 'equates\user64.inc'
 
 include 'dlg32.g'
 
-; TODO: test terse RC-like adapters ...
-;include 'RC-terse.g' ; terse RC CONTROL keywords
-
-
-
 ;---------------------------------------------------------------------------TEST
 ; exact dialog from Raymond Chen's blog ...
 ;

@@ -23,6 +23,10 @@ calminstruction DialogBoxIndirect line&
 	assemble line
 end calminstruction
 
+
+
+
+
 ; TODO: What ordinal cases will route incorrectly as string?
 ; (Nothing that will pass through DU?)
 calminstruction sz_Or_Ord line&
@@ -40,7 +44,7 @@ str:	arrange line, =du line,0
 end calminstruction
 
 ;-------------------------------------------------------------------------------
-define DLGITEMTEMPLATEEX
+define DLGITEMTEMPLATEEX ; select useful default values
 define DLGITEMTEMPLATEEX.helpID		0	; DWORD
 define DLGITEMTEMPLATEEX.exStyle	0	; DWORD
 define DLGITEMTEMPLATEEX.style		0	; DWORD
@@ -74,6 +78,13 @@ end calminstruction
 calminstruction (NAMED) DLGITEMTEMPLATEEX line&
 	local var,val,rest,final
 	compute DLGITEMTEMPLATEEX..items,1+DLGITEMTEMPLATEEX..items
+
+; Problems with this technique:
+; - duplicate assignments are not prevented, only the last part:value applies
+;   low chance? n^2 solution or another abstraction for O(n)
+;   default value use is the same, combine?
+;   find a solution that generates useful error messages?
+
 	arrange line,line=,
 more:	arrange rest,
 	match part:value=,rest?,line,<>
@@ -154,7 +165,7 @@ end calminstruction
 ;	extraData: db '0123456789'
 ;	extraData: file 'kctl.ico'
 ;
-;   B. Assembled command generated data is check against expected size:
+;   B. Assembled command generated data is checked against expected size:
 ;	extraCount:5, extraData: db '01234'
 ;	extraCount:128, extraData: file 'taco.bin'
 ;
@@ -244,7 +255,7 @@ force_font:
 	compute var,DLGTEMPLATEEX..cDlgItems
 	arrange var,=DLGTEMPLATEEX..#var
 user:
-	arrange line, =NAMED:
+	arrange line, NAMED:
 	assemble line
 	arrange line, =namespace NAMED
 	assemble line
