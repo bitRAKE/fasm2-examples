@@ -1,0 +1,9 @@
+
+// application resource
+
+
+
+
+#define APPLICATION_RIBBON 1 // use const id instead of string
+
+#include ".\ribbon.rc"
