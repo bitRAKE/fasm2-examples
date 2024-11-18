@@ -4,46 +4,49 @@ UICC = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x86\uicc.exe"
 .SUFFIXES : .asm.obj
 
 .asm.obj :
-	$(FASM2) -e 5 $<
+	$(FASM2) -e 5 -i "DEBUG:=1" $<
 	@if not exist $(<:.asm=.obj) exit 1
 
 
-all : app.exe tidy
-
-# Sufficient dependencies to allow efficient build on project changes. Order
-# is important to reducing verbosity. For example, building the resource first
-# chains to all resource products - compiliing the ribbon:
-#	app.exe -> app.res -> [app.rc] ->
-#	ribbon.rc -> ribbon.h -> ribbon.bin -> [app.ribbon]
-#
-# TODO: All the resource images should be included.
-
-ribbon.bin : app.ribbon
-	$(UICC) app.ribbon ribbon.bin /header:ribbon.h /res:ribbon.rc
-
-ribbon.h : ribbon.bin
-ribbon.rc : ribbon.h
+all : dbg_all.exe tidy
 
 
-app.exe : app.res app.obj \
-	impl_IUIApplication.obj \
-	impl_IUICommandHandler.obj \
-	impl_IUIEventLogger.obj
-	link @$*.response $**
+# change string resource reference (APPLICATION_RIBBON) into a number (1)
+dbg_all.bin : dbg_all.xml
+	$(UICC) dbg_all.xml dbg_all.bin /header:dbg_all.h /res:dbg_all.rc
+	@if exist dbg_all.h echo #define APPLICATION_RIBBON 1 >>dbg_all.h
 
-app.response : app.obj
-app.obj : base.asm
-app.rc : ribbon.rc
+dbg_all.res : dbg_all.bin dbg_all.rc dbg_all.h
+
+
+dbg_all.exe : dbg_all.res dbg_all.obj	\
+	debug.obj			\
+	_wait_for_key.obj		\
+	impl_X_IUnknown.obj		\
+	impl_Xd_IUIApplication.obj	\
+	impl_Xd_IUICommandHandler.obj	\
+	impl_X_IUIEventLogger.obj
+	link @$*.response "/SUBSYSTEM:CONSOLE,6.02" $**
+
+dbg_all.response : dbg_all.obj
 
 
 
 .SILENT :
 
+# tidy, leaves the end products
+# clean, removes anything generated
+# package, archives non-generated
+
 tidy :
-	del /S /Q ribbon.* >NUL 2>&1
+	del dbg_all.h dbg_all.rc dbg_all.bin
+	del /S /Q *.response *.res *.obj >NUL 2>&1
 
 clean : tidy
-	del /S /Q *.response *.res *.obj *.exp *.lib *.dll *.exe *.zip >NUL 2>&1
+	del /S /Q *.exp *.lib *.dll *.exe *.zip >NUL 2>&1
 
 package : clean
 	tar -a -cf main.zip --exclude=main.zip *
+
+# insure non-file targets don't conflict
+.PHONY: tidy clean package
