@@ -3,8 +3,138 @@
 	Minimal Compilable Ribbon XML
 -->
 <Application xmlns="http://schemas.microsoft.com/windows/2009/Ribbon">
+  <Application.Commands>
+    <Command Name="cmdNew"
+             LabelTitle="&amp;New"
+             LabelDescription="New Description"
+             TooltipTitle="New (Ctrl+N)"
+             TooltipDescription="Create a new image.">
+    </Command>
+
+    <Command Name="cmdOpen"
+             LabelTitle="Open"
+             LabelDescription="Open Description"
+             TooltipTitle="Open (Ctrl+O)"
+             TooltipDescription="Open an existing image.">
+    </Command>
+
+    <Command Name="cmdSave"
+             LabelTitle="Save"
+             LabelDescription="Save Description"
+             TooltipTitle="Save (Ctrl+S)"
+             TooltipDescription="Save the current image.">
+    </Command>
+
+    <Command Name="cmdExit"
+             LabelTitle="Exit"
+             LabelDescription="Exit Description"
+             TooltipTitle="Exit (Ctrl+X)"
+             TooltipDescription="Exit application.">
+    </Command>
+
+    <Command Name="cmdButtonDropA"
+             LabelTitle="Drop A"
+             LabelDescription="Sub button A"
+             TooltipTitle="Drop A">
+    </Command>
+
+    <Command Name="cmdButtonDropB"
+             LabelTitle="Drop B"
+             LabelDescription="Sub button B"
+             TooltipTitle="Drop B">
+    </Command>
+
+    <Command Name="cmdButtonDropC"
+             LabelTitle="Drop C"
+             LabelDescription="Sub button C"
+             TooltipTitle="Drop C">
+    </Command>
+
+    <Command Name="cmdTabMain" LabelTitle="Main"></Command>
+
+    <Command Name="cmdTabDrop" LabelTitle="Drop"></Command>
+
+    <Command Name="cmdGroupFileActions" LabelTitle="File Actions"></Command>
+
+    <Command Name="cmdGroupExit" LabelTitle=""></Command>
+
+    <Command Name="cmdGroupDrop" LabelTitle=""></Command>
+
+    <Command Name="cmdQAT"/>
+    <Command Name="cmdTToggle"/>
+    <Command Name="cmdCustomizeQAT"/>
+    <Command Name="cmdFileMenu" LabelTitle="Taco"></Command>
+    <Command Name="cmdMRUItems"/>
+    <Command Name="cmdHelp"/>
+  </Application.Commands>
+
   <Application.Views>
     <Ribbon>
+      <Ribbon.QuickAccessToolbar>
+        <QuickAccessToolbar
+	  CommandName="cmdQAT"
+          CustomizeCommandName="cmdCustomizeQAT">
+	  <!-- A maximum of 20 child elements can be specified. -->
+          <QuickAccessToolbar.ApplicationDefaults>
+            <Button CommandName="cmdNew"/>
+            <ToggleButton
+	      CommandName="cmdTToggle"
+              ApplicationDefaults.IsChecked="false"/>
+          </QuickAccessToolbar.ApplicationDefaults>
+        </QuickAccessToolbar>
+      </Ribbon.QuickAccessToolbar>
+
+      <Ribbon.ApplicationMenu>
+        <ApplicationMenu CommandName="cmdFileMenu">
+          <ApplicationMenu.RecentItems>
+            <RecentItems CommandName="cmdMRUItems"/>
+          </ApplicationMenu.RecentItems>
+
+          <MenuGroup>
+            <Button CommandName="cmdNew" />
+            <Button CommandName="cmdOpen" />
+            <Button CommandName="cmdSave" />
+          </MenuGroup>
+          <MenuGroup>
+            <Button CommandName="cmdExit" />
+          </MenuGroup>
+        </ApplicationMenu>
+      </Ribbon.ApplicationMenu>
+
+      <Ribbon.HelpButton>
+        <HelpButton CommandName="cmdHelp" />
+      </Ribbon.HelpButton>
+
+      <Ribbon.Tabs>
+        <Tab CommandName="cmdTabMain">
+
+          <Tab.ScalingPolicy><ScalingPolicy>
+              <ScalingPolicy.IdealSizes>
+                <Scale Group="cmdGroupFileActions" Size="Large" />
+                <Scale Group="cmdGroupExit" Size="Large" />
+              </ScalingPolicy.IdealSizes>
+              <Scale Group="cmdGroupFileActions" Size="Medium" />
+          </ScalingPolicy></Tab.ScalingPolicy>
+
+          <Group CommandName="cmdGroupFileActions" SizeDefinition="ThreeButtons">
+            <Button CommandName="cmdNew" />
+            <Button CommandName="cmdOpen" />
+            <Button CommandName="cmdSave" />
+          </Group>
+
+          <Group CommandName="cmdGroupExit" SizeDefinition="OneButton">
+            <Button CommandName="cmdExit" />
+          </Group>
+        </Tab>
+        <Tab CommandName ="cmdTabDrop">
+          <Group CommandName="cmdGroupDrop" SizeDefinition="ThreeButtons">
+            <Button CommandName="cmdButtonDropA" />
+            <Button CommandName="cmdButtonDropB" />
+            <Button CommandName="cmdButtonDropC" />
+          </Group>
+        </Tab>
+      </Ribbon.Tabs>
+
     </Ribbon>
   </Application.Views>
 </Application>
